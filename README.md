@@ -49,6 +49,8 @@ Save your document before updating or removing the plugin:
 omarchy plugin update io.github.komagata.omatext
 ```
 
+For an early version copied with `scripts/install-local.py`, remove the old plugin after saving your document, then use the Install command above. That early copy is not a Git checkout.
+
 If the shell retains an older QML component after an update, save your work and log out and back in. When upgrading from the early C++ version, a new session also unloads its old native library.
 
 To remove:

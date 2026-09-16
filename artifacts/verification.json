@@ -30,22 +30,26 @@
     "theme": "Stock Tokyo Night",
     "locale": "en_US.UTF-8",
     "display": "1280x800, scale 1",
-    "install": "omarchy plugin add from a local Git candidate; no build in guest",
+    "install": "omarchy plugin add https://github.com/komagata/OmaText.git --enable --yes",
     "live": [
       "Normal window, no bar widget",
       "Actual Quickshell process transport and Python helper",
       "Save and reopen fictional English text through Qt file dialogs",
       "New, Open, Save and Settings shortcuts",
       "Collapsed gear, expanded icons, settings modal, unsaved confirmation",
-      "Cancel unsaved changes and undo"
+      "Cancel unsaved changes and undo",
+      "Public GitHub installation without a build directory or native module",
+      "Normal guest reboot followed by launch, save and reopen",
+      "Final screenshots recaptured from the public GitHub installation"
     ],
-    "capture": "Unedited guest grim captures; no host desktop content"
+    "capture": "Unedited guest grim captures; no host desktop content",
+    "tested_commit": "07e4db2576ba18a0e1286144f0571c7880c66134"
   },
   "screenshots": {
-    "omatext.png": "fb94e04ddec5cc0f192a3e7b65823745c365316fe7b7a589c2714e6b16f23432",
-    "hover-actions.png": "0faee76a12125ba4a72a6adc5bddf426d30a5cd76ed8118a4f906e88ad8a2e2c",
-    "font-settings.png": "7361269182062511a66f2c30053041c0723ce18c207841a9b07408b48b66acdc",
-    "unsaved-confirmation.png": "a7f18ff3356efcd7a1a721bc6b3ecf19b5d9f68f218fe80e2edaf4a8cdc429ee"
+    "omatext.png": "c5141c8d8012f2e1a14fbe7e023d00656d2212ee32577b431c4b4062e23ac693",
+    "hover-actions.png": "c23c1bf9def84a2e67524531ba5674c89dd0f3e667e5443cc76d0e4c95befb3b",
+    "font-settings.png": "8f32bee7d610b20f6ced980e4e0239661e8e6860a23b1bed9685675e48a1298f",
+    "unsaved-confirmation.png": "ddebb4b2720a8a10f00171b52b08618b1314d721df2ef2de74061c4171d7d79e"
   },
   "not_run": [
     "ARM64 runtime",
@@ -54,7 +58,6 @@
   ],
   "notes": [
     "The original version passed a live Fcitx5/Mozc input check. Unicode IME events remain covered by automated tests.",
-    "Native GTK/GVfs file selection aborted the VM shell before helper execution. Qt file dialogs avoid that path.",
-    "Public GitHub installation will be rechecked after the candidate is pushed."
+    "Native GTK/GVfs file selection aborted the VM shell before helper execution. Qt file dialogs avoid that path."
   ]
 }

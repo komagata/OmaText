@@ -9,6 +9,8 @@ Screenshots are captured from a dedicated QEMU/KVM virtual machine, not the deve
 - Qt 6.11.2
 - Linux x86_64
 - A disposable copy-on-write disk and a new `demo` user
+- Stock Tokyo Night theme, 1280 x 800 display, scale 1
+- A normal 1000 x 650 editor window
 
 The disposable disk is based on an existing Omarchy installation-test image. The new user starts from `/etc/skel`; previous test accounts are not used for the screenshots. All configuration changes remain inside the VM.
 
