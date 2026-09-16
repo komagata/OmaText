@@ -2,7 +2,7 @@
 
 A minimal text editor for Omarchy. A normal window, your current theme, and one small gear in the corner. No bar widget, tabs, or Markdown preview.
 
-![OmaText running in a clean virtual machine](artifacts/omatext.png)
+![OmaText running in a clean virtual machine](preview.png)
 
 ## Install
 
@@ -69,10 +69,10 @@ rm -f -- "${XDG_DATA_HOME:-$HOME/.local/share}/applications/io.github.komagata.o
 
 Installing and using OmaText does not require a build. The optional UI test harness uses Qt Test and a C++17 compiler; the file-helper tests use Python's standard library.
 
+From a local source checkout:
+
 ```sh
-git clone https://github.com/komagata/OmaText.git
-cd OmaText
-python3 -m unittest discover -s tests -p 'test_*.py'
+./tests/run
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build --output-on-failure
