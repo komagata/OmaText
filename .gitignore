@@ -1,0 +1,7 @@
+/build/
+/lib/
+__pycache__/
+*.pyc
+/.agents/
+/.codex/
+/artifacts/*.txt

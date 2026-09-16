@@ -1,0 +1,7 @@
+module qs.Ui
+Button 1.0 Button.qml
+BorderSurface 1.0 BorderSurface.qml
+BorderOverlay 1.0 BorderOverlay.qml
+Dropdown 1.0 Dropdown.qml
+SearchableDropdown 1.0 SearchableDropdown.qml
+TextField 1.0 TextField.qml

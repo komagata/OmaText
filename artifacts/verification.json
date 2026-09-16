@@ -1,0 +1,74 @@
+{
+  "verified_on": "2026-09-17",
+  "source_sha256": {
+    "CMakeLists.txt": "4bce7b14ea483ca921eb602e427852f11e9a32040d46252c3e4142f18e88e8ff",
+    "manifest.json": "1445fdae9ebd883abdce0720bef29eec5ff40670ad48d33866177e63959de6fd",
+    "ui/Editor.qml": "4c25ee5c73fd20ab071ad328b46a974b67faeb55d4d8f30f8690ec76de4e40bf",
+    "ui/EditorView.qml": "3b941300592c410c7db4ed509a6c0ed2d9148e7b235258dee532828063515e35",
+    "src/document.h": "e72de26e9dde99964a5d909eebd770423401398a59b53802546a324f2fbd92f4",
+    "src/document.cpp": "81e5808352e575973f677ceb400c8ee68043cce5782668b7949b2ca49bce5ce9",
+    "scripts/install-local.py": "5f0daee0270497ab769e89520a4b88b1ba1c2869547a04144ddc7d424a881acb",
+    "tests/document_test.cpp": "990716a44c7901eabbaecbdafae656f0d5c5022f559bc8e0178729b5fd37fecd",
+    "tests/ui_test.cpp": "6587af6d2945c2bf26e43136eff56ebdc09ee9d043eceb0b55a70ef7c77b3830"
+  },
+  "automated": [
+    "document and ui CTest suites passed",
+    "manifest validation passed",
+    "installer isolated check passed: delayed discovery, copied layout, desktop entry, overwrite guard"
+  ],
+  "live": [
+    "hosted normal window; no bar widget",
+    "Mozc conversion and commit",
+    "Japanese filename save and reopen; 42 characters / 104 UTF-8 bytes",
+    "save as with explicit extension",
+    "new document",
+    "unsaved cancel, discard and save",
+    "undo, save, close, summon",
+    "modal focus preserved across repeated summon",
+    "desktop launcher"
+  ],
+  "not_run": [
+    "live theme switching",
+    "multi-monitor checks"
+  ],
+  "screenshots": [
+    "omatext.png",
+    "hover-actions.png",
+    "font-settings.png"
+  ],
+  "lint": "qmllint has dynamic type and unqualified-access warnings; see docs/implementation.md",
+  "minimal_ui_update": {
+    "automated": [
+      "hover actions and save icon",
+      "settings modal focus",
+      "font preview and cancellation",
+      "settings persistence across plugin recreation"
+    ],
+    "live": [
+      "collapsed gear and expanded four icons",
+      "font search and Liberation Mono selection",
+      "apply 20px; preview 22px and cancel to 20px",
+      "new/open/save icons; Japanese document roundtrip",
+      "restored Omarchy default font and size"
+    ],
+    "screenshots": [
+      "omatext.png",
+      "hover-actions.png",
+      "font-settings.png"
+    ]
+  },
+  "earlier_ui_screenshots": [
+    "unsaved-confirmation.png",
+    "ime-preedit.png"
+  ],
+  "english_labels_update": {
+    "automated": "document and ui suites passed",
+    "live": "Installed and verified after document was saved; English window and native dialog titles confirmed",
+    "screenshots": "Existing screenshots predate English labels"
+  },
+  "shortcuts_update": {
+    "automated": "document/ui suites passed; Ctrl+, opens settings, document shortcuts blocked while settings modal is open",
+    "live": "Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+, verified in Omarchy",
+    "installed_entry": "ui-shortcuts/Editor.qml (fresh URL avoids host QML cache; source entry remains ui/Editor.qml)"
+  }
+}

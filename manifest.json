@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.komagata.omatext",
+  "name": "OmaText",
+  "version": "0.1.0",
+  "author": "komagata",
+  "description": "A simple text editor in a normal window, without a bar widget.",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "ui/Editor.qml"
+  },
+  "keepLoaded": true,
+  "license": "MIT"
+}
