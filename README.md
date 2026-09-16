@@ -1,93 +1,93 @@
 # OmaText
 
-バーに置かない、Omarchy 4のシンプルなテキストエディタプラグイン。
-通常のウィンドウで開き、`qs.Commons` / `qs.Ui`の色・フォント・ボタンを直接使います。
+A minimal text editor for Omarchy. A normal window, your current theme, and one small gear in the corner. No bar widget, tabs, or Markdown preview.
 
-![OmaText](artifacts/omatext.png)
+![OmaText running in a clean virtual machine](artifacts/omatext.png)
 
-## ビルドとローカルインストール
+## Install
 
-必要: Omarchy 4、Qt 6のCore/Gui/Qml/Quick/QuickControls2/Test、CMake、C++17コンパイラ、Python 3。
-Omarchy 4.0.3 / Quickshell 0.3.1 / Qt 6.11.2で動作確認しています。
+On **Omarchy 4** with **Python 3**, install and enable the plugin:
 
 ```sh
-git clone https://github.com/komagata/OmaText.git
-cd OmaText
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
-python3 scripts/install-local.py
+omarchy plugin add https://github.com/komagata/OmaText.git --enable
 ```
 
-インストーラはプラグインと説明ファイルをユーザーのプラグインフォルダへコピーします。
-バーへの登録は行いません。アプリ一覧の「OmaText」から開けます。
-C++バックエンドのビルドが必要なため、`omarchy plugin add`だけではインストールできません。
+No compiler, build command, separate installer, or Python package installation is required. The plugin uses QML and a Python 3 standard-library helper. There are no bundled native binaries or CPU-specific builds.
+
+Verified on Omarchy 4.0.3 / Quickshell 0.3.1 / Qt 6.11.2 in an x86_64 VM. ARM64 has not been tested; it still requires a compatible Omarchy and Quickshell installation.
+
+Open the editor:
 
 ```sh
 omarchy-shell shell summon io.github.komagata.omatext '{}'
 ```
 
-## 操作
+## Use
 
-普段は左下の歯車だけを表示します。ホバーすると設定・新規・開く・保存の4アイコンが現れます。
-設定モーダルで本文のフォントと文字サイズを選べます。✓で適用、×でキャンセル（ツールチップはApply / Cancel）。
-選択中は本文にプレビューし、適用した設定は`~/.config/omatext/editor.ini`に保存します。
-「Omarchy default」を選ぶとテーマのフォント・文字サイズに追従します。
+Hover over the bottom-left gear to reveal **Settings**, **New**, **Open**, and **Save**. All four controls are icons; their tooltips show the action and shortcut.
 
-- Ctrl+,: Settings（設定）
-- Ctrl+N: New（新規）
-- Ctrl+O: Open（開く）
-- Ctrl+S: Save（保存）
-- Ctrl+Shift+S: 名前を付けて保存
-- Ctrl+Q / ウィンドウを閉じる: 未保存確認後に閉じる
-- Ctrl+Z / Ctrl+Shift+Z: 元に戻す / やり直す
-- Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V: 選択・コピー・切取り・貼付け
+| Action | Shortcut |
+| --- | --- |
+| Settings | Ctrl+, |
+| New | Ctrl+N |
+| Open | Ctrl+O |
+| Save | Ctrl+S |
+| Save As | Ctrl+Shift+S |
+| Close | Ctrl+Q |
+| Undo / Redo | Ctrl+Z / Ctrl+Shift+Z |
+| Select all / Copy / Cut / Paste | Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V |
 
-UTF-8の通常ファイル（2 MiB以下）を開きます。読み込んだCRLFとUTF-8 BOMは保存時に維持します。
-保存はQSaveFileで原子的に行い、失敗時には本文と未保存状態を残します。
-タブ、Markdownプレビュー、自動保存はありません。
+Settings lets you search for a font and choose a font size. Changes preview in the document. Select the checkmark to apply or the cross to cancel. **Omarchy default** follows the shell's font and text size. Preferences are saved in `~/.config/omatext/editor.ini`.
 
-プラグインはシェルと同じプロセスで動きます。ウィンドウを閉じても再表示のため状態を保持しますが、
-シェルの再起動・プラグイン再読込／無効化・システム終了に備え、必要な本文はファイルへ保存してください。
-ネイティブバックエンドを更新する場合は保存後に再ログインが必要です（共有ライブラリはプロセス中に残るため）。
+The editor opens regular UTF-8 files up to 2 MiB, preserves UTF-8 BOM and CRLF line endings, and saves atomically. Unsaved changes trigger a confirmation before creating, opening, or closing a document. Japanese IME input is supported.
 
-## 更新
+## Update and remove
 
-文書を保存して閉じ、プラグインを削除してから再ビルド・再インストールします。
+Save your document before updating or removing the plugin:
+
+```sh
+omarchy plugin update io.github.komagata.omatext
+```
+
+If the shell retains an older QML component after an update, save your work and log out and back in. When upgrading from the early C++ version, a new session also unloads its old native library.
+
+To remove:
 
 ```sh
 omarchy plugin remove io.github.komagata.omatext
-git pull --ff-only
+```
+
+Saved documents and `~/.config/omatext/editor.ini` are kept. If you installed an older version using `scripts/install-local.py`, also remove its optional launcher:
+
+```sh
+rm -f -- "${XDG_DATA_HOME:-$HOME/.local/share}/applications/io.github.komagata.omatext.desktop"
+```
+
+## Development and tests
+
+Installing and using OmaText does not require a build. The optional UI test harness uses Qt Test and a C++17 compiler; the file-helper tests use Python's standard library.
+
+```sh
+git clone https://github.com/komagata/OmaText.git
+cd OmaText
+python3 -m unittest discover -s tests -p 'test_*.py'
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build --output-on-failure
-python3 scripts/install-local.py
 ```
 
-更新後は再ログインしてください。シェルが以前のQMLや共有ライブラリを保持する場合があります。
+The UI tests require Qt 6 Core, Gui, Qml, Quick, QuickControls2 and Test, plus CMake. These are developer dependencies only.
 
-## 削除
+## How it works
 
-文書を保存して閉じてから実行します。
+OmaText runs inside Omarchy's existing Quickshell process and opens a regular Qt Quick window. It directly uses `qs.Commons` and `qs.Ui` for theme colors, typography, square borders, and controls. QML maintains document and unsaved-change state. A short-lived Python helper reads or atomically saves a file, communicating through JSON on stdin and stdout. Document content is never placed in command-line arguments. The Omarchy component copies under `tests/support` are for headless tests only.
 
-```sh
-omarchy plugin remove io.github.komagata.omatext
-rm -- "${XDG_DATA_HOME:-$HOME/.local/share}/applications/io.github.komagata.omatext.desktop"
-```
+The plugin does not start a persistent background service or make network requests. Python runs only during a file operation. It writes documents only when you save, plus its font preferences. Closing the window retains the current document while the shell is running; restarting the shell, reloading/disabling the plugin, or logging out does not restore unsaved work. There is no autosave or external-file change monitoring.
 
-ユーザーが保存したテキストファイルと`~/.config/omatext/editor.ini`は削除しません。
+See [implementation and verification](docs/implementation.md) and [VM screenshot instructions](docs/screenshots.md) for the tested scope.
 
-## 構成
+## License and support
 
-`ui/Editor.qml`がホストのopen/closeを受け、`ui/EditorView.qml`を表示します。
-`src/document.*`はファイル処理と未保存確認の状態を担当するQt QMLモジュールです。
-独立したQuickshellプロセスやバックグラウンドコマンドは起動しません。
-`tests/support`のOmarchy部品の写しとテーマアダプタはヘッドレステスト専用で、インストールされません。
+[MIT License](LICENSE). The test-only Omarchy components retain their [upstream license](tests/support/vendor/OMARCHY-LICENSE).
 
-調査・設計と検証結果は[実装記録](docs/implementation.md)にまとめています。
-
-
-## ライセンス・問い合わせ
-
-[MIT License](LICENSE)。テスト用Omarchy部品のライセンスは[OMARCHY-LICENSE](tests/support/vendor/OMARCHY-LICENSE)を参照してください。
-不具合や要望は[Issues](https://github.com/komagata/OmaText/issues)へどうぞ。
+Report bugs and suggestions in [Issues](https://github.com/komagata/OmaText/issues).

@@ -1,74 +1,60 @@
 {
   "verified_on": "2026-09-17",
+  "version": "0.2.0",
+  "runtime": "QML and Python 3 standard library; no native plugin binary",
   "source_sha256": {
-    "CMakeLists.txt": "4bce7b14ea483ca921eb602e427852f11e9a32040d46252c3e4142f18e88e8ff",
-    "manifest.json": "1445fdae9ebd883abdce0720bef29eec5ff40670ad48d33866177e63959de6fd",
-    "ui/Editor.qml": "4c25ee5c73fd20ab071ad328b46a974b67faeb55d4d8f30f8690ec76de4e40bf",
-    "ui/EditorView.qml": "3b941300592c410c7db4ed509a6c0ed2d9148e7b235258dee532828063515e35",
-    "src/document.h": "e72de26e9dde99964a5d909eebd770423401398a59b53802546a324f2fbd92f4",
-    "src/document.cpp": "81e5808352e575973f677ceb400c8ee68043cce5782668b7949b2ca49bce5ce9",
-    "scripts/install-local.py": "5f0daee0270497ab769e89520a4b88b1ba1c2869547a04144ddc7d424a881acb",
-    "tests/document_test.cpp": "990716a44c7901eabbaecbdafae656f0d5c5022f559bc8e0178729b5fd37fecd",
-    "tests/ui_test.cpp": "6587af6d2945c2bf26e43136eff56ebdc09ee9d043eceb0b55a70ef7c77b3830"
+    "CMakeLists.txt": "3d92dd06646297957051e7acc80cfaef54895b6e65335bef42584a3b2db93b6e",
+    "manifest.json": "027433065c33b144e310a48a7b5e71ab9a27ace60cb5c4c6a0d08d7bc5845008",
+    "scripts/file_io.py": "8338095c90bacbeaa792be9d77beb60b41a974fa4c27cdde94d76667b2b11628",
+    "tests/support/file_io.h": "b5c9f0e410746927770b6b80854121543cfbec7efc0a1c6f8aa0782ed4994704",
+    "tests/test_file_io.py": "5728731b09d8f699dd2d978268151146618f3bad2caf4203dabb58bcdc563dc7",
+    "tests/ui_test.cpp": "5f9816d395aaeb594f0c531cae8b0617d3549a470ad0f6dcc75219913c56b418",
+    "ui/Document.qml": "061d46001db4af227f86d11c1f35e3b21038b0f4d0b7f8aa28d625f68fd28f7f",
+    "ui/Editor.qml": "28cdd00f2f23f18a0691b76af1f83ff11d933cf99be530f97e5de6077e66a7a3",
+    "ui/EditorBase.qml": "10d0fcb48c7937f202baadfdc2894cf91944eab04e882a4fe80f1fe593f46872",
+    "ui/EditorView.qml": "037b65a6eb00c578206491032adb57e43dd4c2926bf4849ff136c05771ee9a23",
+    "ui/FileIo.qml": "ef37eaff7467234dcc9d5970b936f1ad13bb8e181e971b72e7c476decbfddae7"
   },
   "automated": [
-    "document and ui CTest suites passed",
-    "manifest validation passed",
-    "installer isolated check passed: delayed discovery, copied layout, desktop entry, overwrite guard"
+    "Python file I/O tests",
+    "Qt UI and document-state tests using a test-only QProcess transport",
+    "Official and portable plugin manifest validation"
   ],
-  "live": [
-    "hosted normal window; no bar widget",
-    "Mozc conversion and commit",
-    "Japanese filename save and reopen; 42 characters / 104 UTF-8 bytes",
-    "save as with explicit extension",
-    "new document",
-    "unsaved cancel, discard and save",
-    "undo, save, close, summon",
-    "modal focus preserved across repeated summon",
-    "desktop launcher"
-  ],
-  "not_run": [
-    "live theme switching",
-    "multi-monitor checks"
-  ],
-  "screenshots": [
-    "omatext.png",
-    "hover-actions.png",
-    "font-settings.png"
-  ],
-  "lint": "qmllint has dynamic type and unqualified-access warnings; see docs/implementation.md",
-  "minimal_ui_update": {
-    "automated": [
-      "hover actions and save icon",
-      "settings modal focus",
-      "font preview and cancellation",
-      "settings persistence across plugin recreation"
-    ],
+  "vm": {
+    "hypervisor": "QEMU/KVM",
+    "architecture": "x86_64",
+    "omarchy": "4.0.3",
+    "qt": "6.11.2",
+    "quickshell": "0.3.1",
+    "user": "Fresh demo account from /etc/skel",
+    "theme": "Stock Tokyo Night",
+    "locale": "en_US.UTF-8",
+    "display": "1280x800, scale 1",
+    "install": "omarchy plugin add from a local Git candidate; no build in guest",
     "live": [
-      "collapsed gear and expanded four icons",
-      "font search and Liberation Mono selection",
-      "apply 20px; preview 22px and cancel to 20px",
-      "new/open/save icons; Japanese document roundtrip",
-      "restored Omarchy default font and size"
+      "Normal window, no bar widget",
+      "Actual Quickshell process transport and Python helper",
+      "Save and reopen fictional English text through Qt file dialogs",
+      "New, Open, Save and Settings shortcuts",
+      "Collapsed gear, expanded icons, settings modal, unsaved confirmation",
+      "Cancel unsaved changes and undo"
     ],
-    "screenshots": [
-      "omatext.png",
-      "hover-actions.png",
-      "font-settings.png"
-    ]
+    "capture": "Unedited guest grim captures; no host desktop content"
   },
-  "earlier_ui_screenshots": [
-    "unsaved-confirmation.png",
-    "ime-preedit.png"
+  "screenshots": {
+    "omatext.png": "fb94e04ddec5cc0f192a3e7b65823745c365316fe7b7a589c2714e6b16f23432",
+    "hover-actions.png": "0faee76a12125ba4a72a6adc5bddf426d30a5cd76ed8118a4f906e88ad8a2e2c",
+    "font-settings.png": "7361269182062511a66f2c30053041c0723ce18c207841a9b07408b48b66acdc",
+    "unsaved-confirmation.png": "a7f18ff3356efcd7a1a721bc6b3ecf19b5d9f68f218fe80e2edaf4a8cdc429ee"
+  },
+  "not_run": [
+    "ARM64 runtime",
+    "Live theme switching",
+    "Multi-monitor behavior"
   ],
-  "english_labels_update": {
-    "automated": "document and ui suites passed",
-    "live": "Installed and verified after document was saved; English window and native dialog titles confirmed",
-    "screenshots": "Existing screenshots predate English labels"
-  },
-  "shortcuts_update": {
-    "automated": "document/ui suites passed; Ctrl+, opens settings, document shortcuts blocked while settings modal is open",
-    "live": "Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+, verified in Omarchy",
-    "installed_entry": "ui-shortcuts/Editor.qml (fresh URL avoids host QML cache; source entry remains ui/Editor.qml)"
-  }
+  "notes": [
+    "The original version passed a live Fcitx5/Mozc input check. Unicode IME events remain covered by automated tests.",
+    "Native GTK/GVfs file selection aborted the VM shell before helper execution. Qt file dialogs avoid that path.",
+    "Public GitHub installation will be rechecked after the candidate is pushed."
+  ]
 }

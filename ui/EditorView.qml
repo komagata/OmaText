@@ -21,7 +21,7 @@ Window {
     color: Color.background
     title: (document.modified ? "● " : "") + fileName + " — OmaText"
     readonly property string fileName: document.url.toString() ? decodeURIComponent(document.url.toString().split("/").pop()) : "Untitled"
-    readonly property bool modalOpen: unsaved.visible || errorDialog.visible || openDialog.visible || saveDialog.visible || settingsDialog.visible
+    readonly property bool modalOpen: document.busy || unsaved.visible || errorDialog.visible || openDialog.visible || saveDialog.visible || settingsDialog.visible
     onClosing: function(close) {
         close.accepted = false
         requestClose()
@@ -63,6 +63,7 @@ Window {
             id: editor
             objectName: "editor"
             focus: true
+            readOnly: root.document.busy
             textFormat: TextEdit.PlainText
             wrapMode: TextEdit.Wrap
             selectByMouse: true
@@ -220,6 +221,8 @@ Window {
     FileDialog {
         id: openDialog
         title: "Open File"
+        // Keep file selection inside Qt; GTK dialogs can abort the shared shell.
+        options: FileDialog.DontUseNativeDialog
         fileMode: FileDialog.OpenFile
         nameFilters: ["Text files (*.txt *.md *.text)", "All files (*)"]
         onAccepted: { document.acceptFile(selectedFile, false); editor.forceActiveFocus() }
@@ -228,6 +231,7 @@ Window {
     FileDialog {
         id: saveDialog
         title: "Save As"
+        options: FileDialog.DontUseNativeDialog
         fileMode: FileDialog.SaveFile
         defaultSuffix: "txt"
         nameFilters: ["Text files (*.txt)", "All files (*)"]
