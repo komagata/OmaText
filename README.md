@@ -12,15 +12,23 @@ On **Omarchy 4** with **Python 3**, install and enable the plugin:
 omarchy plugin add https://github.com/komagata/OmaText.git --enable
 ```
 
-No compiler, build command, separate installer, or Python package installation is required. The plugin uses QML and a Python 3 standard-library helper. There are no bundled native binaries or CPU-specific builds.
+No compiler, build command, or Python package installation is required. The plugin uses QML and a Python 3 standard-library helper. There are no bundled native binaries or CPU-specific builds.
 
 Verified on Omarchy 4.0.3 / Quickshell 0.3.1 / Qt 6.11.2 in an x86_64 VM. ARM64 has not been tested; it still requires a compatible Omarchy and Quickshell installation.
 
-Open the editor:
+Register the application launcher and terminal command once:
 
 ```sh
-omarchy-shell shell summon io.github.komagata.omatext '{}'
+python3 "${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/plugins/io.github.komagata.omatext/scripts/setup-launcher.py"
 ```
+
+Then choose **OmaText** in your application launcher, or run:
+
+```sh
+omatext
+```
+
+The setup creates `~/.local/bin/omatext` and an application entry under `${XDG_DATA_HOME:-$HOME/.local/share}/applications`. Omarchy normally includes `~/.local/bin` in `PATH`; setup reports if it is missing. Registration is optional and requires no build. The standard plugin installer does not register these launchers automatically.
 
 ## Use
 
@@ -56,6 +64,7 @@ If the shell retains an older QML component after an update, save your work and 
 To remove:
 
 ```sh
+python3 "${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/plugins/io.github.komagata.omatext/scripts/setup-launcher.py" --remove
 omarchy plugin remove io.github.komagata.omatext
 ```
 
@@ -83,6 +92,8 @@ The UI tests require Qt 6 Core, Gui, Qml, Quick, QuickControls2 and Test, plus C
 ## How it works
 
 OmaText runs inside Omarchy's existing Quickshell process and opens a regular Qt Quick window. It directly uses `qs.Commons` and `qs.Ui` for theme colors, typography, square borders, and controls. QML maintains document and unsaved-change state. A short-lived Python helper reads or atomically saves a file, communicating through JSON on stdin and stdout. Document content is never placed in command-line arguments. The Omarchy component copies under `tests/support` are for headless tests only.
+
+The `omatext` command internally invokes the shell IPC command to show the editor; no plugin ID or JSON argument is needed from the user. The optional launcher setup only creates the two launcher files described above and refuses to overwrite unrelated files.
 
 The plugin does not start a persistent background service or make network requests. Python runs only during a file operation. It writes documents only when you save, plus its font preferences. Closing the window retains the current document while the shell is running; restarting the shell, reloading/disabling the plugin, or logging out does not restore unsaved work. There is no autosave or external-file change monitoring.
 
