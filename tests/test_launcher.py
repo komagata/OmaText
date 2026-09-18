@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import tempfile
 import unittest
 
@@ -19,7 +20,7 @@ class LauncherTest(unittest.TestCase):
             launcher = home / '.local/bin/omatext'
             desktop = home / 'data/applications/io.github.komagata.omatext.desktop'
             self.assertIn('Name=OmaText', desktop.read_text())
-            self.assertIn(f'Exec="{launcher}"', desktop.read_text())
+            self.assertIn('Exec=omatext %f', desktop.read_text())
             helper = home / '.local/bin/omarchy-shell'
             helper.write_text('#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n')
             helper.chmod(0o755)
@@ -47,9 +48,33 @@ class LauncherTest(unittest.TestCase):
             self.assertEqual(args[:3], ['shell', 'summon', 'io.github.komagata.omatext'])
             self.assertEqual(json.loads(args[3]), {'fileUrl': (home / name).as_uri()})
             desktop = (home / 'data/applications/io.github.komagata.omatext.desktop').read_text()
-            self.assertIn(f'Exec="{launcher}" %f', desktop)
+            self.assertIn('Exec=omatext %f', desktop)
             self.assertIn('MimeType=text/plain;text/markdown;text/x-markdown;', desktop)
             self.assertFalse((home / '.config/mimeapps.list').exists())
+
+    @unittest.skipUnless(shutil.which('xdg-mime'), 'xdg-mime is not installed')
+    def test_xdg_mime_resolves_registered_launcher(self):
+        with tempfile.TemporaryDirectory(prefix='omatext xdg ') as directory:
+            home = Path(directory)
+            env = dict(os.environ, HOME=str(home), XDG_DATA_HOME=str(home / 'data'),
+                       XDG_CONFIG_HOME=str(home / 'config'), XDG_CURRENT_DESKTOP='generic', DE='generic')
+            subprocess.run(['python3', str(SETUP)], env=env, check=True)
+            (home / 'config').mkdir()
+            env['PATH'] = str(home / '.local/bin') + os.pathsep + env['PATH']
+            desktop = 'io.github.komagata.omatext.desktop'
+            subprocess.run(['xdg-mime', 'default', desktop, 'text/plain'], env=env, check=True)
+            result = subprocess.run(['xdg-mime', 'query', 'default', 'text/plain'], env=env, check=True, capture_output=True, text=True)
+            self.assertEqual(result.stdout.strip(), desktop)
+            helper = home / '.local/bin/omarchy-shell'
+            helper.write_text('#!/usr/bin/env python3\nimport json,sys\nprint(json.dumps(sys.argv[1:]))\n')
+            helper.chmod(0o755)
+            env['PATH'] = str(helper.parent) + os.pathsep + env['PATH']
+            document = home / '日本語 text.txt'
+            document.write_text('fixture')
+            opened = subprocess.run(['xdg-open', str(document)], env=env, capture_output=True, text=True, timeout=10)
+            self.assertEqual(opened.returncode, 0, opened.stderr)
+            self.assertTrue(opened.stdout.strip(), opened.stderr)
+            self.assertEqual(json.loads(json.loads(opened.stdout)[3]), {'fileUrl': document.as_uri()})
 
     def test_refuses_unrelated_command(self):
         self.assertTrue(SETUP.exists(), 'Launcher setup is missing')

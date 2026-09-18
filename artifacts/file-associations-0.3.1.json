@@ -1,0 +1,16 @@
+{
+  "version": "0.3.1",
+  "verified_on": "2026-09-19",
+  "checks": [
+    "12 Python tests including real xdg-mime/xdg-open against an isolated home with spaces",
+    "Qt UI/document suite",
+    "Actual daily-use Omarchy 4.0.4 install and xdg-open for Japanese TXT and Markdown filenames",
+    "Default application queries for text/plain, text/markdown, text/x-markdown all return io.github.komagata.omatext.desktop",
+    "Markdown window screenshot inspected"
+  ],
+  "source_sha256": {
+    "manifest.json": "40802194621038aac1e344d9f36e14e69434867a5859a5c600b0f09e706b84fe",
+    "scripts/setup-launcher.py": "94446e6a02d5310f4e88d1025e661ae4e27b88ac0a3a487aa4c04d5c38d92373",
+    "tests/test_launcher.py": "591b008885ba2431c6f858c6f75dd475c4cfc0ef188ebd4180479dd7ba341c33"
+  }
+}

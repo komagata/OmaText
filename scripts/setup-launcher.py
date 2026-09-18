@@ -32,14 +32,6 @@ os.execvp("omarchy-shell", ["omarchy-shell", "shell", "summon",
 '''
 
 
-def desktop_quote(value):
-    # Desktop Entry string escaping is applied after Exec argument escaping.
-    value = value.replace('%', '%%')
-    for character in ('\\', '"', '`', '$'):
-        value = value.replace(character, '\\' + character)
-    return '"' + value.replace('\\', '\\\\') + '"'
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--remove', action='store_true')
@@ -54,7 +46,7 @@ def main():
 Type=Application
 Name=OmaText
 Comment=A minimal text editor for Omarchy
-Exec={desktop_quote(str(launcher))} %f
+Exec=omatext %f
 Icon=accessories-text-editor
 Terminal=false
 Categories=Utility;TextEditor;

@@ -50,3 +50,9 @@ The optional launcher accepts one filename, converts it to an absolute file URL,
 The document state machine holds a requested file through unsaved-change confirmation. Cancel and failed saves clear that request; Save finishes before opening the requested file. Encoded and decoded forms of the current URL are normalized so reopening the same file keeps edits. Non-file URLs are ignored. Requests received while a modal dialog or file operation is active do not replace that operation.
 
 Current test scope is recorded in `artifacts/file-associations-0.3.0.json`. The existing preview and clean-VM evidence remain historical and are not claimed as 0.3.0 VM validation.
+
+### xdg-utils compatibility (0.3.1)
+
+The desktop entry uses `Exec=omatext %f`, resolved through Omarchy's PATH. The generic xdg-utils backend splits Exec fields without decoding quotes, so a quoted absolute executable path is not reliably recognized or launched. A regression test installs the launcher into a temporary home containing spaces, queries its MIME default, and opens a Japanese text filename through actual `xdg-mime` and `xdg-open` commands with a recording IPC helper. Launcher setup still reports when `~/.local/bin` is absent from PATH.
+
+On Omarchy 4.0.4, both `.txt` and `.md` were opened through `xdg-open` in the daily-use shell. The editor reported each expected URL and content length, with no pending operation or unsaved modification. All three user MIME defaults resolve to OmaText.
