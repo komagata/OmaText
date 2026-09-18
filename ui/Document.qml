@@ -10,6 +10,7 @@ QtObject {
     readonly property bool busy: io.busy
     property string savedText: ""
     property string pending: ""
+    property string pendingFile: ""
     property var operation: null
     property bool crlf: false
     property bool bom: false
@@ -18,27 +19,38 @@ QtObject {
     signal closeReady()
 
     function clearError() { error = "" }
-    function request(action) {
-        if (busy) return
+    function request(action, fileUrl = "") {
+        if (busy || pending) return
+        pendingFile = fileUrl
         pending = action
         if (modified) confirmationRequested()
         else proceed()
     }
     function requestNew() { request("new") }
     function requestOpen() { request("open") }
+    function requestFile(fileUrl) {
+        if (typeof fileUrl !== "string" || !fileUrl.startsWith("file:///")) return
+        const normalized = Qt.resolvedUrl(fileUrl).toString()
+        if (normalized === url.toString()) return
+        request("open", normalized)
+    }
     function requestClose() { request("close") }
     function proceed() {
         const action = pending
-        pending = ""
+        const fileUrl = pendingFile
+        pending = ""; pendingFile = ""
         if (action === "new") {
             url = ""; savedText = ""; text = ""; crlf = false; bom = false
-        } else if (action === "open") fileDialogRequested(false)
+        } else if (action === "open") {
+            if (fileUrl) acceptFile(fileUrl, false)
+            else fileDialogRequested(false)
+        }
         else if (action === "close") closeReady()
     }
     function resolveUnsaved(choice) {
         if (choice === "save") save()
         else if (choice === "discard") proceed()
-        else pending = ""
+        else cancelFile()
     }
     function save() {
         if (busy) return
@@ -46,7 +58,7 @@ QtObject {
         else acceptFile(url, true)
     }
     function saveAs() { if (!busy) fileDialogRequested(true) }
-    function cancelFile() { pending = "" }
+    function cancelFile() { pending = ""; pendingFile = "" }
     function open(fileUrl) { acceptFile(fileUrl, false) }
     function acceptFile(fileUrl, saving) {
         if (busy) return
@@ -62,7 +74,7 @@ QtObject {
             root.operation = null
             if (!op) return
             if (!result.ok) {
-                root.pending = ""
+                root.cancelFile()
                 root.error = result.error || "The file operation failed."
                 return
             }

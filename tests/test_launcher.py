@@ -31,6 +31,26 @@ class LauncherTest(unittest.TestCase):
             self.assertFalse(launcher.exists())
             self.assertFalse(desktop.exists())
 
+    def test_file_argument_and_mime_registration(self):
+        with tempfile.TemporaryDirectory(prefix='omatext file ') as directory:
+            home = Path(directory)
+            env = dict(os.environ, HOME=str(home), XDG_DATA_HOME=str(home / 'data'))
+            subprocess.run(['python3', str(SETUP)], env=env, check=True)
+            launcher = home / '.local/bin/omatext'
+            helper = launcher.with_name('omarchy-shell')
+            helper.write_text('#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n')
+            helper.chmod(0o755)
+            env['PATH'] = str(helper.parent) + os.pathsep + env['PATH']
+            name = '日本語 space # $(echo test).md'
+            result = subprocess.run([str(launcher), name], cwd=home, env=env, check=True, capture_output=True, text=True)
+            args = json.loads(result.stdout)
+            self.assertEqual(args[:3], ['shell', 'summon', 'io.github.komagata.omatext'])
+            self.assertEqual(json.loads(args[3]), {'fileUrl': (home / name).as_uri()})
+            desktop = (home / 'data/applications/io.github.komagata.omatext.desktop').read_text()
+            self.assertIn(f'Exec="{launcher}" %f', desktop)
+            self.assertIn('MimeType=text/plain;text/markdown;text/x-markdown;', desktop)
+            self.assertFalse((home / '.config/mimeapps.list').exists())
+
     def test_refuses_unrelated_command(self):
         self.assertTrue(SETUP.exists(), 'Launcher setup is missing')
         with tempfile.TemporaryDirectory() as directory:

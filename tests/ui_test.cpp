@@ -9,6 +9,8 @@
 #include <QTemporaryDir>
 #include <QFile>
 #include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "file_io.h"
 #include "theme.h"
 
@@ -43,6 +45,43 @@ private slots:
         QTest::keyClick(window, Qt::Key_Escape); QTRY_VERIFY(!dialog->property("visible").toBool());
         QCOMPARE(doc->property("text").toString(), "draft");
         doc->setProperty("text", ""); call(plugin, "hideEditor"); QTRY_VERIFY(!plugin->property("opened").toBool());
+    }
+    void openFileFromLauncher() {
+        ThemeFiles theme(QDir::homePath()); FileIo io; QQmlApplicationEngine engine;
+        load(engine, theme, io); QVERIFY(!engine.rootObjects().isEmpty());
+        auto plugin = engine.rootObjects().first();
+        auto window = plugin->findChild<QQuickWindow *>(); QVERIFY(window);
+        auto doc = window->property("document").value<QObject *>(); QVERIFY(doc);
+        QTemporaryDir dir;
+        const auto url = QUrl::fromLocalFile(dir.filePath("日本語 space #.md"));
+        QFile file(url.toLocalFile()); QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("# Launcher document\n"); file.close();
+        const QString payload = QString::fromUtf8(QJsonDocument(QJsonObject{{"fileUrl", url.toString(QUrl::FullyEncoded)}}).toJson(QJsonDocument::Compact));
+        doc->setProperty("text", "keep this draft");
+        call(plugin, "showEditor", payload);
+        auto dialog = window->findChild<QObject *>("unsavedDialog");
+        QTRY_VERIFY(dialog->property("opened").toBool());
+        QCOMPARE(doc->property("text").toString(), "keep this draft");
+        call(dialog, "choose", "cancel");
+        QCOMPARE(doc->property("text").toString(), "keep this draft");
+        call(plugin, "showEditor", payload);
+        QTRY_VERIFY(dialog->property("opened").toBool());
+        call(dialog, "choose", "discard");
+        QTRY_COMPARE(doc->property("text").toString(), "# Launcher document\n");
+        QCOMPARE(doc->property("url").toUrl(), url);
+        doc->setProperty("text", "edited same file");
+        call(plugin, "showEditor", payload);
+        QCOMPARE(doc->property("text").toString(), "edited same file");
+        QVERIFY(!dialog->property("visible").toBool());
+        const auto nextUrl = QUrl::fromLocalFile(dir.filePath("next.txt"));
+        QFile next(nextUrl.toLocalFile()); QVERIFY(next.open(QIODevice::WriteOnly));
+        next.write("next file"); next.close();
+        const QString nextPayload = QString::fromUtf8(QJsonDocument(QJsonObject{{"fileUrl", nextUrl.toString()}}).toJson(QJsonDocument::Compact));
+        call(plugin, "showEditor", nextPayload);
+        QTRY_VERIFY(dialog->property("opened").toBool());
+        call(dialog, "choose", "save");
+        QTRY_COMPARE(doc->property("text").toString(), "next file");
+        QVERIFY(file.open(QIODevice::ReadOnly)); QCOMPARE(file.readAll(), QByteArray("edited same file"));
     }
     void hoverActions() {
         ThemeFiles theme(QDir::homePath()); FileIo io; QQmlApplicationEngine engine;

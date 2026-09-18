@@ -42,3 +42,11 @@ Public screenshots must come from the dedicated VM and contain fictional English
 - QML lint reports dynamic type and unqualified-reference warnings; runtime testing is not a claim of a warning-free static check.
 
 The host can retain cached QML after a plugin update. Save documents before updating. Never restart a user's shell to collect a screenshot or refresh a development build.
+
+## File associations (0.3.0)
+
+The optional launcher accepts one filename, converts it to an absolute file URL, and sends it as a JSON IPC payload using an argument array. The desktop entry advertises plain text and Markdown MIME types and forwards a single local file through `%f`. Registering the launcher does not change MIME defaults; the README gives explicit opt-in `xdg-mime` commands.
+
+The document state machine holds a requested file through unsaved-change confirmation. Cancel and failed saves clear that request; Save finishes before opening the requested file. Encoded and decoded forms of the current URL are normalized so reopening the same file keeps edits. Non-file URLs are ignored. Requests received while a modal dialog or file operation is active do not replace that operation.
+
+Current test scope is recorded in `artifacts/file-associations-0.3.0.json`. The existing preview and clean-VM evidence remain historical and are not claimed as 0.3.0 VM validation.

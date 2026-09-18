@@ -1,0 +1,29 @@
+{
+  "version": "0.3.0",
+  "verified_on": "2026-09-19",
+  "environment": {
+    "omarchy": "4.0.4",
+    "qt": "6.11.2",
+    "architecture": "x86_64"
+  },
+  "checks": [
+    "11 Python tests including launcher file arguments, desktop MIME registration, install/removal, and file IO",
+    "Qt UI suite including external-file opening, unsaved cancel/discard/save, and same-file preservation with an encoded Japanese filename",
+    "Official Omarchy manifest validation",
+    "Independent Quickshell instance with real FileIo Process transport: file URL loaded fictional Markdown on both offscreen and Wayland platforms",
+    "Wayland window title and screenshot inspected for Japanese/space/hash filename"
+  ],
+  "limits": [
+    "Current daily-use plugin replacement and global MIME defaults await saving the user document",
+    "Existing VM and preview evidence in verification.json describes earlier revisions",
+    "No ARM64 or new clean-VM installation check for 0.3.0"
+  ],
+  "source_sha256": {
+    "manifest.json": "1b30c8dad2d5a0e9c861cff8f16a051e5ed0b3e1bcdf6106f16320f109ee02a1",
+    "scripts/setup-launcher.py": "ccb2d4077bb164d53b18596f6fa0bdd822821976ca9f6510c81083e40499f6b9",
+    "ui/Document.qml": "ea881c01a4c1c55edbff88cc6837b1ee715bbf5f8377ee72f948cd7e8bcd9285",
+    "ui/EditorBase.qml": "c698a2002c4dc7512e7a1bd4a0b81b47f34d6448a46abe2dcf0c7cbdce291b83",
+    "tests/test_launcher.py": "2fd1648a9c6d16232ebcf267a4b232ec1574cc2fbca0d241e9068b2b31a52334",
+    "tests/ui_test.cpp": "b20643a9deebb553428580e3117b7cd064fc4cce3fa0820c333a7630d9da7959"
+  }
+}

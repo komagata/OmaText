@@ -16,9 +16,19 @@ Icon=accessories-text-editor
 Terminal=false
 Categories=Utility;TextEditor;
 """
-COMMAND = f'''#!/bin/sh
+COMMAND = f'''#!/usr/bin/env python3
 {MARKER}
-exec omarchy-shell shell summon io.github.komagata.omatext '{{}}'
+import argparse
+import json
+import os
+from pathlib import Path
+
+parser = argparse.ArgumentParser(description="Open a text file in OmaText.")
+parser.add_argument("file", nargs="?")
+args = parser.parse_args()
+payload = {{"fileUrl": Path(args.file).absolute().as_uri()}} if args.file else {{}}
+os.execvp("omarchy-shell", ["omarchy-shell", "shell", "summon",
+                            "io.github.komagata.omatext", json.dumps(payload)])
 '''
 
 
@@ -44,10 +54,11 @@ def main():
 Type=Application
 Name=OmaText
 Comment=A minimal text editor for Omarchy
-Exec={desktop_quote(str(launcher))}
+Exec={desktop_quote(str(launcher))} %f
 Icon=accessories-text-editor
 Terminal=false
 Categories=Utility;TextEditor;
+MimeType=text/plain;text/markdown;text/x-markdown;
 '''
     files = [(launcher, COMMAND, 0o755), (desktop, entry, 0o644)]
     # Check both destinations before making changes; never replace another app.
