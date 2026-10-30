@@ -47,6 +47,11 @@ class LauncherTest(unittest.TestCase):
             args = json.loads(result.stdout)
             self.assertEqual(args[:3], ['shell', 'summon', 'io.github.komagata.omatext'])
             self.assertEqual(json.loads(args[3]), {'fileUrl': (home / name).as_uri()})
+            folder = home / '日本語 folder # $(echo test)'
+            folder.mkdir()
+            result = subprocess.run([str(launcher), folder.name], cwd=home, env=env,
+                                    check=True, capture_output=True, text=True)
+            self.assertEqual(json.loads(json.loads(result.stdout)[3]), {'folderUrl': folder.as_uri()})
             desktop = (home / 'data/applications/io.github.komagata.omatext.desktop').read_text()
             self.assertIn('Exec=omatext %f', desktop)
             self.assertIn('MimeType=text/plain;text/markdown;text/x-markdown;', desktop)

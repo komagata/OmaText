@@ -41,6 +41,44 @@ def read_file(path):
     return {"ok": True, "text": text.replace("\r\n", "\n"), "crlf": "\r\n" in text, "bom": data.startswith(b"\xef\xbb\xbf")}
 
 
+def list_directory(path):
+    # Open every component without following symlinks, including during races.
+    directory_fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+    try:
+        for component in path.parts[1:]:
+            next_fd = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory_fd)
+            os.close(directory_fd)
+            directory_fd = next_fd
+    except BaseException:
+        os.close(directory_fd)
+        raise
+    entries = []
+    output_bytes = 0
+    truncated = False
+    try:
+        with os.scandir(directory_fd) as directory:
+            for scanned, entry in enumerate(directory):
+                if scanned >= 1024:
+                    truncated = True
+                    break
+                if entry.name.startswith(".") or entry.is_symlink():
+                    continue
+                is_directory = entry.is_dir(follow_symlinks=False)
+                if not is_directory and not entry.is_file(follow_symlinks=False):
+                    continue
+                item = {"name": entry.name, "url": (path / entry.name).as_uri(), "directory": is_directory}
+                size = len(json.dumps(item, ensure_ascii=True).encode("utf-8")) + 2
+                if len(entries) >= 256 or output_bytes + size > 120000:
+                    truncated = True
+                    break
+                entries.append(item)
+                output_bytes += size
+    finally:
+        os.close(directory_fd)
+    entries.sort(key=lambda item: (not item["directory"], item["name"].casefold()))
+    return {"ok": True, "entries": entries, "truncated": truncated}
+
+
 def write_file(path, text, crlf=False, bom=False):
     if not isinstance(text, str):
         raise ValueError("The document text is missing.")
@@ -76,6 +114,8 @@ def handle(request):
         if not isinstance(request, dict):
             raise ValueError("Invalid file request.")
         path = local_path(request.get("url"))
+        if request.get("action") == "list":
+            return list_directory(path)
         if request.get("action") == "read":
             return read_file(path)
         if request.get("action") == "write":

@@ -68,6 +68,36 @@ class FileIoTest(unittest.TestCase):
         self.assertTrue(self.path.is_symlink())
         self.assertEqual(target.read_text(), "changed")
 
+    def test_lazy_listing_encodes_names_and_skips_hidden_links_specials(self):
+        root = self.path.parent
+        name = '日本語 space # "quote".md'
+        (root / name).write_text("hello")
+        (root / "nested").mkdir()
+        (root / "nested" / "child.txt").write_text("child")
+        (root / ".hidden").write_text("hidden")
+        (root / "cycle").symlink_to(root, target_is_directory=True)
+        os.mkfifo(root / "pipe")
+        result = io.handle(dict(action="list", url=root.as_uri()))
+        self.assertTrue(result["ok"], result)
+        self.assertEqual({e["name"] for e in result["entries"]}, {name, "nested"})
+        entry = next(e for e in result["entries"] if e["name"] == name)
+        self.assertEqual(io.local_path(entry["url"]), root / name)
+        self.assertFalse(io.handle(dict(action="list", url=(root / "cycle").as_uri()))["ok"])
+
+    def test_listing_is_bounded_and_errors_are_retryable(self):
+        root = self.path.parent
+        for i in range(300):
+            (root / f"file-{i}").touch()
+        result = io.handle(dict(action="list", url=root.as_uri()))
+        self.assertTrue(result["ok"], result)
+        self.assertLessEqual(len(result["entries"]), 256)
+        self.assertTrue(result["truncated"])
+        self.assertLessEqual(len(json.dumps(result).encode()), 131072)
+        with patch.object(io.os, "scandir", side_effect=PermissionError()):
+            self.assertFalse(io.handle(dict(action="list", url=root.as_uri()))["ok"])
+        self.assertFalse(io.handle(dict(action="list", url=(root / "deleted").as_uri()))["ok"])
+        self.assertTrue(io.handle(dict(action="list", url=root.as_uri()))["ok"])
+
     def test_rejects_remote_urls_and_bad_requests(self):
         for url in ["https://example.org/a", "file://remote/a", "file:relative", "file:///a%00b"]:
             self.assertFalse(io.handle(dict(action="read", url=url))["ok"])

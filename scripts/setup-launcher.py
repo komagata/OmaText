@@ -23,10 +23,13 @@ import json
 import os
 from pathlib import Path
 
-parser = argparse.ArgumentParser(description="Open a text file in OmaText.")
+parser = argparse.ArgumentParser(description="Open a text file or folder in OmaText.")
 parser.add_argument("file", nargs="?")
 args = parser.parse_args()
-payload = {{"fileUrl": Path(args.file).absolute().as_uri()}} if args.file else {{}}
+payload = {{}}
+if args.file:
+    path = Path(args.file).absolute()
+    payload["folderUrl" if path.is_dir() else "fileUrl"] = path.as_uri()
 os.execvp("omarchy-shell", ["omarchy-shell", "shell", "summon",
                             "io.github.komagata.omatext", json.dumps(payload)])
 '''

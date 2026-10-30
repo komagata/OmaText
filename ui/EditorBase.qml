@@ -4,6 +4,7 @@ import QtCore
 Item {
     id: plugin
     required property var io
+    required property var treeIo
     property string omarchyPath: ""
     property var shell: null
     property var manifest: null
@@ -17,9 +18,12 @@ Item {
         window.requestActivate()
         let payload = null
         try { payload = JSON.parse(payloadJson) } catch (error) {}
-        if (payload && typeof payload.fileUrl === "string" && !window.modalOpen && !backendDocument.busy) {
-            window.commitInput()
-            backendDocument.requestFile(payload.fileUrl)
+        if (payload && !window.modalOpen && !backendDocument.busy) {
+            if (typeof payload.folderUrl === "string") window.openFolderUrl(payload.folderUrl)
+            else if (typeof payload.fileUrl === "string") {
+                window.commitInput()
+                backendDocument.requestFile(payload.fileUrl)
+            }
         }
         Qt.callLater(function() { window.focusEditor() })
     }
@@ -31,11 +35,15 @@ Item {
         location: StandardPaths.writableLocation(StandardPaths.GenericConfigLocation) + "/omatext/editor.ini"
         property string fontFamily: ""
         property int fontSize: 0
+        property bool sidebarVisible: false
     }
     Document { id: backendDocument; io: plugin.io }
     EditorView {
         id: window
         document: backendDocument
+        treeIo: plugin.treeIo
+        sidebarVisible: preferences.sidebarVisible
+        onSidebarVisibilityChanged: function(value) { preferences.sidebarVisible = value; preferences.sync() }
         preferredFontFamily: preferences.fontFamily
         preferredFontSize: preferences.fontSize >= 8 && preferences.fontSize <= 96 ? preferences.fontSize : 0
         onPreferencesChanged: function(family, pixelSize) {

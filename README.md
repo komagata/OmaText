@@ -27,6 +27,7 @@ Then choose **OmaText** in your application launcher, or run:
 ```sh
 omatext
 omatext "notes/my document.md"
+omatext "notes/my folder"
 ```
 
 The setup creates `~/.local/bin/omatext` and an application entry under `${XDG_DATA_HOME:-$HOME/.local/share}/applications`. Omarchy normally includes `~/.local/bin` in `PATH`; setup reports if it is missing. Registration is optional and requires no build. The standard plugin installer does not register these launchers automatically.
@@ -47,20 +48,26 @@ Opening a file uses the existing editor window. Unsaved changes offer Save, Don'
 
 ## Use
 
-Hover over the bottom-left gear to reveal **Settings**, **New**, **Open**, and **Save**. All four controls are icons; their tooltips show the action and shortcut.
+The sidebar is hidden initially. Hover over the bottom-right gear to reveal the Show/Hide file tree button alongside the editor actions, or use **Ctrl+B** or **Show file tree** in Settings. Choose a folder with **Open folder** in Settings, the visible sidebar folder icon, or **Ctrl+Shift+O**, then expand directories and select a file. The left tree and right editor share your Omarchy theme. Drag their divider horizontally to resize the tree. The width is kept during the session, including after hiding the tree or shrinking and expanding the window; it is not saved across restarts. Use Up/Down to navigate, Left/Right to collapse or expand, and Enter to open. **Ctrl+B** or the Settings file-tree action hides or restores the tree; its visibility is saved. Opening a folder, including with `omatext "folder path"`, reveals the tree even if it was hidden. Changing folders or hiding the sidebar keeps your current document. Switching files offers the usual unsaved-change confirmation.
+
+Hover over the bottom-right gear to reveal **Settings**, **New**, **Open**, **Save**, and **Show/Hide file tree**. All five controls are icons; their tooltips show the action and shortcut.
 
 | Action | Shortcut |
 | --- | --- |
 | Settings | Ctrl+, |
 | New | Ctrl+N |
 | Open | Ctrl+O |
+| Open folder | Ctrl+Shift+O |
+| Toggle sidebar | Ctrl+B |
 | Save | Ctrl+S |
 | Save As | Ctrl+Shift+S |
 | Close | Ctrl+Q |
 | Undo / Redo | Ctrl+Z / Ctrl+Shift+Z |
 | Select all / Copy / Cut / Paste | Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V |
 
-Settings lets you search for a font and choose a font size. Changes preview in the document. Select the checkmark to apply or the cross to cancel. **Omarchy default** follows the shell's font and text size. Preferences are saved in `~/.config/omatext/editor.ini`.
+Settings lets you show or hide the file tree, open a folder, search for a font, and choose a font size. Changes preview in the document. Select the checkmark to apply or the cross to cancel. **Omarchy default** follows the shell's font and text size. The file-tree actions discard unapplied font changes, like Cancel. Opening a folder reveals the tree and keeps your document. Preferences are saved in `~/.config/omatext/editor.ini`.
+
+The tree hides dotfiles, symbolic links, and special files. It loads only expanded directories, with bounded listings; a limit notice asks you to open a smaller folder. Folder errors offer Retry and preserve your document. The editor starts directly with your text; the window title is OmaText, with a marker for unsaved changes.
 
 The editor opens regular UTF-8 files up to 2 MiB, preserves UTF-8 BOM and CRLF line endings, and saves atomically. Unsaved changes trigger a confirmation before creating, opening, or closing a document. Japanese IME input is supported.
 
@@ -111,7 +118,7 @@ OmaText runs inside Omarchy's existing Quickshell process and opens a regular Qt
 
 The `omatext` command internally invokes the shell IPC command to show the editor and optionally pass a local file URL as JSON. Filenames are never interpreted as shell code; no plugin ID or JSON argument is needed from the user. The optional launcher setup only creates the two launcher files described above and refuses to overwrite unrelated files.
 
-The plugin does not start a persistent background service or make network requests. Python runs only during a file operation. It writes documents only when you save, plus its font preferences. Closing the window retains the current document while the shell is running; restarting the shell, reloading/disabling the plugin, or logging out does not restore unsaved work. There is no autosave or external-file change monitoring.
+The plugin does not start a persistent background service or make network requests. Python runs only during a file operation. It writes documents only when you save, plus its font and sidebar preferences. Closing the window retains the current document while the shell is running; restarting the shell, reloading/disabling the plugin, or logging out does not restore unsaved work. There is no autosave or external-file change monitoring.
 
 See [implementation and verification](docs/implementation.md) and [VM screenshot instructions](docs/screenshots.md) for the tested scope.
 

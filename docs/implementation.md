@@ -56,3 +56,30 @@ Current test scope is recorded in `artifacts/file-associations-0.3.0.json`. The 
 The desktop entry uses `Exec=omatext %f`, resolved through Omarchy's PATH. The generic xdg-utils backend splits Exec fields without decoding quotes, so a quoted absolute executable path is not reliably recognized or launched. A regression test installs the launcher into a temporary home containing spaces, queries its MIME default, and opens a Japanese text filename through actual `xdg-mime` and `xdg-open` commands with a recording IPC helper. Launcher setup still reports when `~/.local/bin` is absent from PATH.
 
 On Omarchy 4.0.4, both `.txt` and `.md` were opened through `xdg-open` in the daily-use shell. The editor reported each expected URL and content length, with no pending operation or unsaved modification. All three user MIME defaults resolve to OmaText.
+
+## Folder sidebar
+
+`FileTree.qml` uses its own `FileIo` instance, independent of document reads and saves. It requests one directory at a time. A generation number discards old root responses and keeps only the latest queued root. The IO timeout keeps the request occupied until the process exits, so a late exit cannot consume a newer queued request. Opening a file commits IME input and routes through `Document.requestFile`; selection follows the successfully loaded document URL, including encoded Unicode filenames. Folder changes, errors, and sidebar visibility do not modify document state. Ctrl+B and the Settings file-tree action restore editor focus when hiding the sidebar; modal dialogs disable both folder and sidebar shortcuts. The sidebar is hidden on first launch, and explicit visible and hidden preferences survive plugin recreation. Showing it with Ctrl+B focuses the tree; Tab traversal also reaches it. A thin border marks the keyboard cursor independently of the loaded-file selection fill. Folder/file outlines occupy a fixed icon column beside the expansion glyph. Row indices are clamped after collapse or root replacement. Sidebar visibility joins the existing Settings preferences; folders and document content are not persisted.
+
+The helper scans at most 1,024 entries per directory, returns at most 256 entries and approximately 120 KB of JSON entry data, and never recursively scans. The tree cache holds at most 4,096 entries. Hidden dotfiles, all symbolic links, and special files are omitted. Each directory path component is opened with `O_NOFOLLOW` and `O_DIRECTORY` before scanning, preventing symlink-directory traversal even during replacement races. Listings sort folders first within the bounded subset. Permission and deleted-folder errors leave document text untouched and offer Retry. No file management operations are provided.
+
+The sidebar starts at 240 logical pixels. Its one-pixel divider has a transparent eight-pixel horizontal drag area. Dragging commits IME input without moving focus or changing text selection; modal dialogs and file operations disable resizing. Displayed width is clamped to a 160-pixel tree minimum and a 280-pixel editor minimum, including at 520×360. Requested width survives hide/show and window shrink/expand within the session, but is not persisted across restarts. There is no editor path header or permanent tree-toggle icon. The 36-pixel Show/Hide file tree button appears in the bottom-right gear hover row and remains available through keyboard focus. The sidebar status area uses a 12-pixel bottom margin. Text starts at the original 24-pixel top padding, and the title contains only OmaText with an optional unsaved marker. Settings provides labeled Show/Hide file tree and Open folder actions. They close Settings without applying font drafts, then defer the action until the modal guard clears. Folder dialog acceptance and `folderUrl` payloads share a guarded `openFolderUrl` function that commits IME input, reveals the tree, and preserves the current document. Canceling the folder dialog preserves visibility. The launcher sends `folderUrl` for existing directories and `fileUrl` otherwise, using `Path.is_dir()` without shell interpolation; directory MIME defaults are not registered. Bottom space keeps text clear of actions. The rightmost gear stays anchored while New, Open, Save, and the tree toggle appear to its left; the expanded row uses five 36-pixel buttons with 4-pixel gaps.
+
+### Synthetic development preview
+
+Build the existing test harness, then run this standalone window (no shell restart or installed plugin changes):
+
+```sh
+QT_QPA_PLATFORM=wayland QT_QUICK_BACKEND=software QT_QPA_PLATFORMTHEME= ./build/ui-test --preview
+```
+
+All files are fictional fixtures in a temporary directory. The harness uses test-only Omarchy component copies and reads current theme colors; this is not live-shell integration evidence. For an offscreen PNG and minimum-width check:
+
+```sh
+QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QT_QPA_PLATFORMTHEME= OMATEXT_PREVIEW_SNAPSHOT=/tmp/omatext-960.png ./build/ui-test --preview
+QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QT_QPA_PLATFORMTHEME= OMATEXT_PREVIEW_WIDTH=520 OMATEXT_PREVIEW_SNAPSHOT=/tmp/omatext-520.png ./build/ui-test --preview
+```
+
+Set `OMATEXT_PREVIEW_SIDEBAR_WIDTH=320` to preview a resized tree. Set `OMATEXT_PREVIEW_HIDDEN=1` to capture the default editor layout and add `OMATEXT_PREVIEW_SETTINGS=1` to open Settings through the gear. These flags can be combined with the width and snapshot variables above. Set `OMATEXT_PREVIEW_HEIGHT=360` with width 520 for the minimum-size window.
+
+Earlier VM screenshots describe the previous layout; they are not evidence for this sidebar change.
